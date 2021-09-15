@@ -3,6 +3,8 @@ import installExtension, {
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
 } from 'electron-devtools-installer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
@@ -90,3 +92,24 @@ ipcMain.handle('save-file', (event, options) => {
     dialog.showSaveDialog(options);
   }
 });
+
+function findServer() {
+  const possibilities = [
+    // In packaged app
+    path.join(process.resourcesPath, 'server', 'server'),
+    // In development
+    path.join(__dirname, 'server', 'server'),
+    path.join(process.cwd(), 'server', 'server'),
+  ];
+  for (const path of possibilities) {
+    if (fs.existsSync(path)) {
+      return path;
+    }
+  }
+  dialog.showErrorBox(
+    'Could not find server',
+    'Failed to find local executable for server. Please report this issue to https://github.com/audapolis/audapolis/issues'
+  );
+  app.quit();
+}
+console.log('Server is at', findServer());

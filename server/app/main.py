@@ -1,5 +1,6 @@
 import enum
 import json
+import os
 import sys
 import uuid
 from dataclasses import dataclass
@@ -27,7 +28,13 @@ app.add_middleware(
 )
 
 
-DATA_DIR = Path(__file__).absolute().parent.parent.parent / "data"
+def get_data_dir():
+    if "AUDAPOLIS_DATA_DIR" in os.environ:
+        return Path(os.environ.get("AUDAPOLIS_DATA_DIR"))
+    return Path(__file__).absolute().parent.parent.parent / "data"
+
+
+DATA_DIR = get_data_dir()
 CONFIG_FILE = DATA_DIR / "config.yml"
 # TODO: does it make sense to cache the models in memory if we have more than one?
 LOADED_MODELS = {}
